@@ -1,15 +1,15 @@
-# Flask File Management Application Documentation
+# Flask File Management Application
 
 ## 1. Executive Summary
 
-The application enables users to securely manage personal files through a web interface with robust authentication mechanisms.
+The **Flask File Management Application** provides a secure and intuitive platform for managing personal files through a web interface. It implements robust authentication, comprehensive file operations, and follows the Model-View-Controller (MVC) architectural pattern.
 
-The primary objectives of this application are:
-- To provide a secure platform for users to store, retrieve, and manage their files
-- To implement industry standard security practices for user authentication
-- To offer intuitive file operations (upload, download, edit, preview, delete)
-- To demonstrate proper implementation of the MVC architectural pattern in a web application
-- To showcase modern web development practices using Flask and its associated extensions
+### Primary Objectives
+- Secure file storage and management
+- Industry-standard user authentication
+- Comprehensive file operations (upload, download, preview, edit, delete)
+- Demonstration of MVC architecture with Flask
+- Showcase of modern web development practices
 
 ## 2. Application Architecture
 
@@ -17,22 +17,24 @@ The primary objectives of this application are:
 
 The application adheres strictly to the Model-View-Controller (MVC) architecture pattern, with clear separation of concerns:
 
-- **Models** (`models.py`): Defines the database schema and business logic for users and files
-  - Implements proper data validation and relationship management
-  - Handles password hashing through Werkzeug security utilities
-  - Manages user-file relationships through SQLAlchemy ORM
+- **Models** (`models.py`): Handle database schema, business logic, and relationships
+  - Implement proper data validation and relationship management
+  - Handle password hashing through Werkzeug security utilities
+  - Manage user-file relationships through SQLAlchemy ORM
 
-- **Views** (`templates/`): Contains HTML templates rendered to the client
-  - Uses Jinja2 templating engine for dynamic content
-  - Implements template inheritance for consistent layout (base.html)
-  - Separates templates by functionality (login.html, dashboard.html, etc.)
-  - Utilizes Bootstrap 5 for responsive design
+- **Views** (`templates/`): Contain HTML templates rendered to the client
+  - Use Jinja2 templating engine for dynamic content
+  - Implement template inheritance for consistent layout (base.html)
+  - Separate templates by functionality (login.html, dashboard.html, etc.)
+  - Utilize Bootstrap 5 for responsive design
 
-- **Controllers** (`app.py`): Manages route handlers and application logic
-  - Implements authentication workflows
-  - Processes file operations
-  - Handles error conditions
-  - Provides API documentation through Swagger
+- **Controllers** (`app.py`): Manage route handlers and application logic
+  - Implement authentication workflows
+  - Process file operations
+  - Handle error conditions
+  - Provide API documentation through Swagger
+
+### 2.2 Key Flask Extensions
 
 The application leverages several key Flask extensions to enhance its functionality:
 
@@ -59,7 +61,7 @@ The application leverages several key Flask extensions to enhance its functional
   - Provides interactive testing interface
   - Documents API endpoints and parameters
 
-### 2.2 Component Architecture and Data Flow
+### 2.3 Component Architecture and Data Flow
 
 The application's architecture follows a layered approach with distinct components that interact through well-defined interfaces:
 
@@ -91,7 +93,7 @@ The application's architecture follows a layered approach with distinct componen
 +-------------------------+
 ```
 
-**Data Flow in the Application:**
+#### Key Data Flows
 
 1. **Authentication Flow:**
    - User submits credentials through the login form
@@ -111,8 +113,6 @@ The application's architecture follows a layered approach with distinct componen
    - Application verifies user's ownership of the file
    - Requested operation is performed
    - Response is sent back to the user
-
-This architecture ensures proper separation of concerns, secure handling of user data, and maintainability of the codebase.
 
 ## 3. Database Schema
 
@@ -368,7 +368,7 @@ The application implements secure configuration practices:
 - **Upload folder configuration**: Ensures folder exists
 - **Database URI**: Properly configured for the application
 
-While the current implementation has a hardcoded secret key, in a production environment, this would be moved to environment variables:
+Note: In a production environment, the secret key should be moved to environment variables:
 
 ```python
 app.config['SECRET_KEY']="Super klucz tajnosci" #jest hardcoded ale gdyby bylo to w srodowisku produkcyjnym, wyrzucilbym na zmienna env
@@ -386,34 +386,6 @@ The application implements RESTful API principles and documents all endpoints wi
 | `/register` | GET/POST | `register()` | New user registration | login, email, password_hash | 302 (redirect) |  
 | `/logout` | GET | `logout()` | User logout | None | 302 (redirect) |
 
-Example authentication endpoint implementation:
-
-```python
-@app.route('/login', methods=['GET','POST'])
-def login():
-    """
-    Zalogowanie użytkownika
-    ---
-    tags:
-      - Autoryzacja
-    parameters:
-      - name: login_or_email
-        in: formData
-        type: string
-        required: true
-        description: Login lub email użytkownika
-      - name: password
-        in: formData
-        type: string
-        required: true
-        description: Hasło użytkownika
-    responses:
-      302:
-        description: Przekierowanie po udanym logowaniu lub nieudanym logowaniu
-    """
-    # Implementation...
-```
-
 ### 5.2 User Management Endpoints
 
 | Endpoint | Method | Function | Description | Parameters | Response Codes |
@@ -422,13 +394,6 @@ def login():
 | `/update_username` | POST | `update_username()` | Change username | currentPassword, newUsername, confirmNewUsername | 302 (redirect) |
 | `/update_email` | POST | `update_email()` | Change email address | currentPassword, newEmail, confirmNewEmail | 302 (redirect) |
 | `/update_password` | POST | `update_password()` | Change password | currentPassword, newPassword, confirmPassword | 302 (redirect) |
-
-These endpoints implement:
-- Current password verification before changes
-- Input validation
-- Duplicate detection (for email)
-- Confirmation fields to prevent typos
-- Success/error messages via flash
 
 ### 5.3 File Management Endpoints
 
@@ -441,49 +406,6 @@ These endpoints implement:
 | `/edit/<file_id>` | GET/POST | `edit_file()` | View/edit text file | file_id (path), file_name, file_content | 200, 302, 400, 404, 500 |
 | `/preview/<file_id>` | GET | `preview_file()` | Preview text file | file_id (path) | 200, 400, 404, 500 |
 
-The file management endpoints implement:
-- Owner verification
-- File type validation for text operations
-- Error handling for file I/O operations
-- AJAX support for preview/edit operations
-- File size calculation
-- Secure file storage with UUIDs
-
-Example file management endpoint implementation:
-
-```python
-@app.route('/download/<int:file_id>')
-@login_required
-def download_file(file_id):
-    """
-    Pobieranie pliku
-    ---
-    tags:
-      - Pliki
-    security:
-      - Bearer: []
-    parameters:
-      - name: file_id
-        in: path
-        type: integer
-        required: true
-        description: ID pliku do pobrania
-    responses:
-      200:
-        description: Pobieranie pliku
-      404:
-        description: Plik nie znaleziony
-    """
-    file = Files.query.filter_by(
-        id=file_id, 
-        user_id=current_user.id).first_or_404()
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], file.stored_filename)
-    return send_file(
-    file_path,
-    as_attachment=True,
-    download_name=file.original_filename)
-```
-
 ### 5.4 Error Handling Endpoints
 
 | Endpoint | Function | Description | Response Codes |
@@ -492,96 +414,29 @@ def download_file(file_id):
 | 404 error | `not_found()` | Resource not found | 404 |
 | 500 error | `internal_server_error()` | Server error | 500 |
 
-These endpoints implement custom error pages with helpful messages and proper HTTP status codes.
-
 ## 6. Technologies and Frameworks
-
-The application leverages a carefully selected stack of modern technologies:
 
 ### 6.1 Backend Technologies
 
 - **Flask (3.1.0)**: Core web framework
-  - Lightweight and flexible Python web framework
-  - Extensible through Flask extensions
-  - Built on Werkzeug and Jinja2
-  - Handles routing, request processing, and response generation
-
 - **SQLAlchemy (2.0.39)**: Object-Relational Mapper
-  - Abstracts database operations
-  - Provides transaction management
-  - Implements relationship mapping
-  - Handles query building and execution
-
 - **Flask-Login (0.6.3)**: Authentication management
-  - Manages user sessions
-  - Provides @login_required decorator
-  - Handles user loading and authentication
-  - Implements "remember me" functionality
-
 - **Flask-Migrate (4.1.0)**: Database migrations
-  - Based on Alembic
-  - Manages database schema changes
-  - Provides versioning for database schema
-  - Allows safe schema updates
-
 - **Flask-WTF (1.2.2)**: Form handling
-  - Form definition and rendering
-  - CSRF protection
-  - Form validation
-  - File upload handling
-
 - **Werkzeug (3.1.3)**: HTTP and WSGI utilities
-  - Password hashing functions
-  - HTTP request/response objects
-  - URL routing
-  - File handling
-
 - **Flasgger (0.9.7.1)**: API documentation
-  - Swagger UI integration
-  - API documentation generation
-  - Request/response schema definition
-  - Interactive API testing
 
 ### 6.2 Frontend Technologies
 
 - **Bootstrap 5**: UI framework
-  - Responsive grid system
-  - Pre-styled components
-  - Modal dialogs
-  - Forms and buttons
-  - Dark theme support
-
 - **JavaScript**: Client-side interactivity
-  - AJAX requests for file operations
-  - Modal handling
-  - Form validation
-  - Dynamic content loading
-
 - **Jinja2 (3.1.6)**: Template engine
-  - Template inheritance
-  - Variable substitution
-  - Conditional rendering
-  - Loops and iterations
-
 - **HTML5/CSS3**: Base markup and styling
-  - Semantic HTML elements
-  - CSS styling
-  - Responsive design
-  - Accessibility features
 
 ### 6.3 Database
 
 - **SQLite**: Database storage
-  - File-based database
-  - ACID compliance
-  - Zero configuration
-  - Suitable for development and small applications
-
 - **Alembic**: Database migrations
-  - Schema version control
-  - Migration generation
-  - Migration application
-  - Rollback capability
 
 ## 7. Application Features
 
@@ -612,16 +467,6 @@ The application implements a comprehensive authentication system:
   - Protected routes
   - Session termination on logout
   - User identification
-
-Example login form from the application:
-```python
-class LoginForm(FlaskForm):
-    login_or_email = StringField('Login lub e-mail', validators=[DataRequired()], 
-                                render_kw={"placeholder": "Wpisz login lub e-mail"})
-    password = PasswordField('Hasło', validators=[DataRequired()], 
-                            render_kw={"placeholder": "Wpisz hasło"})
-    submit = SubmitField('Zaloguj się')
-```
 
 ### 7.2 File Management
 
@@ -663,18 +508,6 @@ The application provides comprehensive file management capabilities:
   - Human-readable size formatting
   - Per-user isolation
 
-Example file size formatting function:
-```python
-def format_size(size_mb):
-    size = size_mb * 1024 * 1024 
-    units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB']
-    unit_index = 0
-    while size >= 1024 and unit_index < len(units) - 1:
-        size /= 1024
-        unit_index += 1
-    return f"{size:.2f} {units[unit_index]}"
-```
-
 ### 7.3 User Profile Management
 
 The application implements comprehensive profile management:
@@ -703,301 +536,50 @@ The application implements comprehensive profile management:
   - Strong password policy
   - Success/error feedback
 
-Each profile management operation includes:
-- Security verification (current password)
-- Input validation
-- Error handling
-- Success confirmation
+## 8. Setup and Installation
 
-## 8. Code Quality Analysis
+### 8.1 Prerequisites
 
-### 8.1 Best Practices Implemented
-
-The application demonstrates numerous software engineering best practices:
-
-#### 8.1.1 Separation of Concerns
-
-The codebase maintains clear separation between different responsibilities:
-
-- **Models**: Encapsulate data structure and business logic
-  - Password hashing logic in User model
-  - File size calculation in file_functions.py
-  - Relationship management through SQLAlchemy
-  
-- **Views**: Handle presentation only
-  - Template inheritance for consistent layout
-  - Jinja2 for dynamic content
-  - Bootstrap for styling
-  
-- **Controllers**: Manage application flow
-  - Route handlers in app.py
-  - Request processing
-  - Response generation
-  - Error handling
-
-#### 8.1.2 Security Awareness
-
-The application demonstrates strong security awareness:
-
-- **Password Security:**
-  - Secure hashing with Werkzeug
-  - Strong password policy
-  - Prevention of password exposure
-  
-- **Input Validation:**
-  - Form validation with WTForms
-  - Server-side validation in routes
-  - Regular expression validation for critical fields
-  
-- **Authentication:**
-  - Flask-Login for session management
-  - @login_required for protected routes
-  - Owner verification for resources
-  
-- **File Security:**
-  - UUID-based storage names
-  - Owner verification before operations
-  - File type validation for text operations
-
-#### 8.1.3 Error Handling
-
-The application implements comprehensive error handling:
-
-- **Database Operations:**
-  - Try/except blocks
-  - Transaction rollback on error
-  - User feedback via flash messages
-  - Error logging
-  
-- **File Operations:**
-  - File existence checks
-  - IO error handling
-  - User feedback for errors
-  - Error codes in API responses
-  
-- **User Interactions:**
-  - Form validation errors
-  - Flash messages for user feedback
-  - Appropriate redirects
-  - HTTP status codes
-
-Example error handling pattern:
-```python
-try:
-    # Operation that might fail
-    db.session.commit()
-    flash('Operation succeeded!', 'success')
-except Exception as e:
-    db.session.rollback()
-    flash('Operation failed!', 'danger')
-    print(f'Error: {str(e)}')
-```
-
-#### 8.1.4 Code Organization
-
-The codebase demonstrates clean organization:
-
-- **Modular File Structure:**
-  - Separate files for models, forms, utilities
-  - Template directory with logical organization
-  - Migration directory for database changes
-  
-- **Reusable Components:**
-  - Utility functions for repeated operations
-  - Base template for layout consistency
-  - Flash message handling
-  
-- **Descriptive Naming:**
-  - Function names reflect their purpose
-  - Variable names are self-documenting
-  - Template names match their functionality
-  - Database column names are descriptive
-
-#### 8.1.5 Documentation
-
-The application includes comprehensive documentation:
-
-- **API Documentation:**
-  - Swagger integration via Flasgger
-  - Docstrings for all route functions
-  - Parameter descriptions
-  - Response documentation
-  
-- **Code Comments:**
-  - Explanations for complex logic
-  - TODO notes for future improvements
-  - Clarifications for security measures
-  
-- **Database Schema:**
-  - Model relationships documented
-  - Column purposes explained
-  - Migrations tracked
-
-### 8.2 Areas for Improvement
-
-While the application demonstrates many best practices, there are several areas for improvement:
-
-#### 8.2.1 Security Enhancements
-
-- **Configuration Management:**
-  - Move secret key to environment variables
-  - Implement proper configuration for different environments
-  - Remove hardcoded values
-  
-- **Authentication Hardening:**
-  - Implement rate limiting for login attempts
-  - Add account lockout after failed attempts
-  - Consider two-factor authentication
-  
-- **File Upload Security:**
-  - Add MIME type validation
-  - Implement file size limits
-  - Consider virus scanning for uploads
-  
-- **HTTPS Enforcement:**
-  - Configure for HTTPS-only operation
-  - Implement HSTS headers
-  - Secure cookie flags
-
-#### 8.2.2 Performance Optimization
-
-- **Database Optimization:**
-  - Add indexes for frequently queried fields
-  - Implement pagination for file listing
-  - Optimize query execution plans
-  
-- **Caching:**
-  - Implement caching for static resources
-  - Consider caching for frequent database queries
-  - Use ETags for API responses
-  
-- **File Handling:**
-  - Stream large file downloads
-  - Implement chunked uploads for large files
-  - Consider asynchronous processing for uploads
-
-#### 8.2.3 Code Improvements
-
-- **Testing:**
-  - Add unit tests for models and utilities
-  - Implement integration tests for routes
-  - Add security testing
-  
-- **Logging:**
-  - Implement structured logging
-  - Add log rotation
-  - Improve error context in logs
-  
-- **Code Refactoring:**
-  - Reduce duplicated code in route handlers
-  - Move file operations to a dedicated service
-  - Consider using blueprints for route organization
-
-#### 8.2.4 Feature Enhancements
-
-- **File Sharing:**
-  - Implement sharing between users
-  - Add public/private file options
-  - Generate shareable links
-  
-- **File Management:**
-  - Add file categorization
-  - Implement search functionality
-  - Add file versioning
-  
-- **User Experience:**
-  - Implement drag-and-drop uploads
-  - Add progress indicators for operations
-  - Implement bulk operations
-
-#### 8.2.5 UI/UX Improvements
-
-- **Responsive Design:**
-  - Improve mobile experience
-  - Optimize for different screen sizes
-  - Enhance accessibility
-  
-- **Client-Side Validation:**
-  - Add JavaScript validation for forms
-  - Provide immediate feedback
-  - Improve error messages
-  
-- **Visual Enhancements:**
-  - Improve dashboard layout
-  - Add file type icons
-  - Implement themes
-
-## 9. Setup and Running Instructions
-
-### 9.1 Prerequisites
-
-The application requires:
-
-- **Python 3.8+**: Core runtime environment
+- **Python 3.8+**
 - **pip**: Python package manager
-- **Virtual environment**: Recommended for dependency isolation
-- **SQLite**: Database (included with Python)
+- **SQLite**: Included with Python
+- **Virtual Environment**: Recommended for dependency isolation
 
-### 9.2 Installation
+### 8.2 Installation Steps
 
-Follow these steps to set up the application:
-
-1. **Clone the repository:**
+1. Clone the repository:
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/AAAAAAAAA9a/IO2_Project.git
    cd IO-2-Project
    ```
 
-2. **Create and activate a virtual environment:**
+2. Create and activate a virtual environment:
    ```bash
-   python -m venv venv
+   python3 -m venv venv
    source venv/bin/activate  # On Windows: venv\Scripts\activate
    ```
 
-3. **Install dependencies:**
+3. Install dependencies:
    ```bash
    pip install -r requirements.txt
    ```
 
-   This installs all required packages, including:
-   - Flask and extensions
-   - SQLAlchemy
-   - WTForms
-   - Flasgger
-   - Other dependencies
+### 8.3 Database Initialization
 
-### 9.3 Database Initialization
-
-Initialize the database structure:
-
+Run the database initialization script:
 ```bash
 python database_init.py
 ```
 
-This script:
-- Creates the database file (`instance/project.db`)
-- Initializes the database schema
-- Applies any pending migrations
-
-### 9.4 Running the Application
+### 8.4 Running the Application
 
 Start the Flask development server:
-
 ```bash
 python app.py
 ```
 
-The application will start with:
-- Development server on http://127.0.0.1:5000/
-- Debug mode enabled
-- Auto-reloading on code changes
+Access the app at: [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
 
-### 9.5 Application Configuration
+### 8.5 API Documentation
 
-Key configuration parameters:
-
-- **Database URI**: `sqlite:///project.db`
-- **Secret Key**: Defined in `app.py`
-- **Upload Folder**: `uploads/` directory
-
-## 10. THE END
+Access the Swagger API documentation at: [http://127.0.0.1:5000/apidocs](http://127.0.0.1:5000/apidocs)
