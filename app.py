@@ -1,31 +1,30 @@
-from flask import Flask, redirect, render_template, flash, url_for, redirect, request, send_file, jsonify
+from flask import Flask, render_template, flash, url_for, redirect, request, send_file, jsonify
 from flask_migrate import Migrate
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from flasgger import Swagger
 from wtforms_flask_our import RegisterForm, LoginForm
 from models import db, Files, Users
 from file_functions import format_size
+from config import Config
 import os
 import uuid
 import re
 
 app = Flask(__name__)
 
+# Konfiguracja aplikacji i inicjalizacja rozszerzeń
+app.config.from_object(Config)
+Config.init_app(app)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///project.db'
-app.config['SECRET_KEY']="Super klucz tajnosci" #jest hardcoded ale gdyby bylo to w srodowisku produkcyjnym, wyrzucilbym na zmienna env
-app.config['UPLOAD_FOLDER'] = 'uploads'
 db.init_app(app)
 migrate = Migrate(app,db)
-
-if not os.path.exists(app.config['UPLOAD_FOLDER']):
-    os.makedirs(app.config['UPLOAD_FOLDER'])
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 
 @login_manager.user_loader
 def load_user(user_id):
+    # Funkcja ładująca użytkownika na podstawie ID (wymagane przez Flask-Login)
     return Users.query.get(int(user_id))
 
 swagger = Swagger(app, template={
@@ -42,6 +41,7 @@ app.jinja_env.globals['format_size'] = format_size
 
 @app.route('/')
 def base_redir():
+    # Przekierowanie na stronę logowania
     return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET','POST'])
@@ -746,4 +746,5 @@ models:
 """
 
 if __name__ == '__main__':
+    # Uruchomienie aplikacji w trybie debugowania
     app.run(debug=True)

@@ -1,7 +1,8 @@
 # Flask File Management Application
 
-## 1. Executive Summary
+A secure web application for managing personal files with robust authentication and comprehensive file operations.
 
+<<<<<<<< HEAD:docs/documentation_ENG.md
 The **Flask File Management Application** provides a secure and intuitive platform for managing personal files through a web interface. It implements robust authentication, comprehensive file operations, and follows the Model-View-Controller (MVC) architectural pattern.
 
 ### Primary Objectives
@@ -565,12 +566,31 @@ The application implements comprehensive profile management:
    ```
 
 ### 8.3 Database Initialization
+========
+## Key Features
+
+- User authentication with strong password requirements
+- File upload, download, preview, edit, and delete functionality
+- User profile management
+- Secure file storage using UUID-based naming
+- RESTful API with Swagger documentation
+
+## Quick Start
+>>>>>>>> 6c652dbe0c067e375ba71e08c858a282eb7d8561:README.md
 
 Run the database initialization script:
 ```bash
-python database_init.py
-```
+# Create and activate virtual environment
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
 
+# Install dependencies
+pip install -r requirements.txt
+
+# Initialize database
+python database_init.py
+
+<<<<<<<< HEAD:docs/documentation_ENG.md
 ### 8.4 Running the Application
 
 Start the Flask development server:
@@ -583,3 +603,22 @@ Access the app at: [http://127.0.0.1:5000/](http://127.0.0.1:5000/)
 ### 8.5 API Documentation
 
 Access the Swagger API documentation at: [http://127.0.0.1:5000/apidocs](http://127.0.0.1:5000/apidocs)
+========
+# Run the application
+python app.py
+```
+
+Access the application at [http://127.0.0.1:5000/](http://127.0.0.1:5000/)  
+API documentation is available at [http://127.0.0.1:5000/apidocs](http://127.0.0.1:5000/apidocs)
+
+## Documentation
+
+For comprehensive documentation, including architecture details, API reference, and setup instructions, see the [docs/documentation.md](docs/documentation.md) file.
+
+## Technologies
+
+- Backend: Flask, SQLAlchemy, Flask-Login, Flask-WTF
+- Frontend: Bootstrap 5, JavaScript, Jinja2
+- Database: SQLite
+- Documentation: Flasgger (Swagger)
+>>>>>>>> 6c652dbe0c067e375ba71e08c858a282eb7d8561:README.md
